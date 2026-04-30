@@ -2,6 +2,21 @@
 // Election Process Assistant — App Module
 // ============================================================
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Escape all HTML, then allow **bold** and newlines only (LLM / user chat). */
+function formatChatHtml(text) {
+  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   initNavbar();
@@ -71,7 +86,7 @@ function initNavbar() {
 function initFactsTicker() {
   const track = document.getElementById('factsTicker');
   const facts = KEY_FACTS;
-  const html = facts.map(f => `<div class="fact-item"><span class="fact-dot"></span>${f}</div>`).join('');
+  const html = facts.map(f => `<div class="fact-item"><span class="fact-dot"></span>${escapeHtml(f)}</div>`).join('');
   track.innerHTML = html + html; // duplicate for seamless loop
 }
 
@@ -88,17 +103,17 @@ function initTimeline() {
     el.setAttribute('aria-expanded', 'false');
     el.setAttribute('aria-label', `Phase ${item.id}: ${item.phase}. Press Enter or Space to expand details.`);
     el.innerHTML = `
-      <div class="timeline-dot"><i data-lucide="${item.icon}" style="width:14px;height:14px"></i></div>
+      <div class="timeline-dot"><i data-lucide="${escapeHtml(item.icon)}" style="width:14px;height:14px"></i></div>
       <div class="timeline-card">
         <div class="timeline-card-header">
           <span class="timeline-phase-num">Phase ${item.id}</span>
-          <span class="timeline-duration">${item.duration}</span>
+          <span class="timeline-duration">${escapeHtml(item.duration)}</span>
         </div>
-        <h3>${item.phase}</h3>
-        <p class="short-desc">${item.shortDesc}</p>
+        <h3>${escapeHtml(item.phase)}</h3>
+        <p class="short-desc">${escapeHtml(item.shortDesc)}</p>
         <div class="timeline-details">
-          <ul>${item.details.map(d => `<li>${d}</li>`).join('')}</ul>
-          <div class="timeline-fun-fact"><strong>💡 Did you know?</strong> ${item.funFact}</div>
+          <ul>${item.details.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>
+          <div class="timeline-fun-fact"><strong>💡 Did you know?</strong> ${escapeHtml(item.funFact)}</div>
         </div>
       </div>
     `;
@@ -139,19 +154,20 @@ function initBentoGrid() {
     el.setAttribute('tabindex', '0');
     el.setAttribute('aria-label', `Learn about ${card.title}. Press Enter or Space to flip the card.`);
     el.setAttribute('aria-pressed', 'false');
+    const safeColor = /^#[0-9A-Fa-f]{3,8}$/.test(card.color) ? card.color : '#64748B';
     el.innerHTML = `
       <div class="bento-card-inner">
         <div class="bento-card-front">
-          <div class="bento-icon" style="background:${card.color}">
-            <i data-lucide="${card.icon}" style="width:24px;height:24px"></i>
+          <div class="bento-icon" style="background:${safeColor}">
+            <i data-lucide="${escapeHtml(card.icon)}" style="width:24px;height:24px"></i>
           </div>
-          <h3>${card.title}</h3>
-          <p class="front-desc">${card.front}</p>
+          <h3>${escapeHtml(card.title)}</h3>
+          <p class="front-desc">${escapeHtml(card.front)}</p>
           <span class="flip-hint">Tap to learn more <i data-lucide="rotate-cw" style="width:12px;height:12px"></i></span>
         </div>
         <div class="bento-card-back">
-          <h4>${card.title}</h4>
-          <ul>${card.back.map(b => `<li>${b}</li>`).join('')}</ul>
+          <h4>${escapeHtml(card.title)}</h4>
+          <ul>${card.back.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>
         </div>
       </div>
     `;
@@ -196,9 +212,9 @@ function initQuiz() {
     nextBtn.classList.remove('show');
 
     optionsEl.innerHTML = q.options.map((opt, i) => `
-      <button class="quiz-option" data-index="${i}">
+      <button type="button" class="quiz-option" data-index="${i}">
         <span class="quiz-option-marker">${String.fromCharCode(65 + i)}</span>
-        <span>${opt}</span>
+        <span>${escapeHtml(opt)}</span>
       </button>
     `).join('');
 
@@ -289,7 +305,7 @@ function initChat() {
     }
   }
 
-  let apiKey = localStorage.getItem('gemini_api_key') || 'AIzaSyDlEKT4BARyccrxoKp41sRmWW-rPx7eCVg';
+  let apiKey = localStorage.getItem('gemini_api_key') || '';
   if (apiKey) {
     apiKeyInput.value = '••••••••••••';
     apiKeyArea.style.display = 'none';
@@ -307,8 +323,7 @@ function initChat() {
   });
 
   fab.addEventListener('click', () => {
-    panel.classList.toggle('open');
-    fab.classList.toggle('open');
+    setChatOpen(!panel.classList.contains('open'));
   });
   closeBtn.addEventListener('click', () => {
     setChatOpen(false);
@@ -317,7 +332,7 @@ function initChat() {
   function addMessage(type, text) {
     const msg = document.createElement('div');
     msg.className = `chat-msg ${type}`;
-    msg.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    msg.innerHTML = formatChatHtml(text);
     messages.appendChild(msg);
     messages.scrollTop = messages.scrollHeight;
     return msg;
@@ -376,7 +391,8 @@ function initChat() {
         console.error('Gemini API Error:', errData);
         
         if (response.status === 400 || response.status === 403) {
-          addMessage('bot', `**API Error (${response.status}):** ${errData.error?.message || 'Check your API key.'}`);
+          const errMsg = errData.error?.message || 'Check your API key.';
+          addMessage('bot', `**API Error (${response.status}):** ${errMsg}`);
           apiKeyArea.style.display = 'flex';
           apiKey = '';
           localStorage.removeItem('gemini_api_key');
@@ -444,11 +460,11 @@ function init2024Results() {
     {icon:'user-check', color:'#059669', val: d.totalCandidates.toLocaleString(), label:'Candidates'},
     {icon:'map-pin', color:'#7C3AED', val: d.totalConstituencies, label:'Constituencies'},
     {icon:'flag', color:'#DC2626', val: d.partyWiseSeats.length+'+', label:'Parties Won Seats'}
-  ].map(s => `<div class="result-stat-card fade-in"><div class="stat-icon" style="background:${s.color}"><i data-lucide="${s.icon}"></i></div><div class="stat-value">${s.val}</div><div class="stat-label">${s.label}</div></div>`).join('');
+  ].map(s => `<div class="result-stat-card fade-in"><div class="stat-icon" style="background:${escapeHtml(s.color)}"><i data-lucide="${escapeHtml(s.icon)}"></i></div><div class="stat-value">${escapeHtml(s.val)}</div><div class="stat-label">${escapeHtml(s.label)}</div></div>`).join('');
 
   // Bar chart
   const maxSeats = d.partyWiseSeats[0].seats;
-  document.getElementById('barChart').innerHTML = d.partyWiseSeats.slice(0,10).map(p => `<div class="bar-row"><span class="bar-label" title="${p.party}">${shortName(p.party)}</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:${getColor(p.party)}" data-target="${(p.seats/maxSeats*100).toFixed(1)}">${p.seats}</div></div><span class="bar-seats">${p.seats}</span></div>`).join('');
+  document.getElementById('barChart').innerHTML = d.partyWiseSeats.slice(0,10).map(p => `<div class="bar-row"><span class="bar-label" title="${escapeHtml(p.party)}">${escapeHtml(shortName(p.party))}</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:${escapeHtml(getColor(p.party))}" data-target="${(p.seats/maxSeats*100).toFixed(1)}">${p.seats}</div></div><span class="bar-seats">${p.seats}</span></div>`).join('');
 
   // Animate bars on scroll
   const barObserver = new IntersectionObserver(entries => {
@@ -464,16 +480,16 @@ function init2024Results() {
   barObserver.observe(document.getElementById('barChart'));
 
   // Closest contests
-  document.getElementById('closestList').innerHTML = d.closestContests.map(c => `<div class="closest-item"><div class="contest-header"><span class="contest-name">${c.constituency}</span><span class="contest-margin">Margin: ${c.margin.toLocaleString()}</span></div><div class="contest-detail">${c.winner} (${shortName(c.winnerParty)}) beat ${c.runnerUp} (${shortName(c.runnerUpParty)}) · ${c.state}</div></div>`).join('');
+  document.getElementById('closestList').innerHTML = d.closestContests.map(c => `<div class="closest-item"><div class="contest-header"><span class="contest-name">${escapeHtml(c.constituency)}</span><span class="contest-margin">Margin: ${c.margin.toLocaleString()}</span></div><div class="contest-detail">${escapeHtml(c.winner)} (${escapeHtml(shortName(c.winnerParty))}) beat ${escapeHtml(c.runnerUp)} (${escapeHtml(shortName(c.runnerUpParty))}) · ${escapeHtml(c.state)}</div></div>`).join('');
 
   // Top candidates
   document.getElementById('topCandidatesList').innerHTML = d.topCandidates.map((c, i) => {
     const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-    return `<div class="top-candidate"><span class="rank ${rankClass}">${i+1}</span><div class="cand-info"><div class="cand-name">${c.name}</div><div class="cand-party">${shortName(c.party)} · ${c.constituency}</div></div><div class="cand-votes">${(c.votes/1e5).toFixed(1)}L</div></div>`;
+    return `<div class="top-candidate"><span class="rank ${rankClass}">${i+1}</span><div class="cand-info"><div class="cand-name">${escapeHtml(c.name)}</div><div class="cand-party">${escapeHtml(shortName(c.party))} · ${escapeHtml(c.constituency)}</div></div><div class="cand-votes">${(c.votes/1e5).toFixed(1)}L</div></div>`;
   }).join('');
 
   // State grid
-  document.getElementById('stateGrid').innerHTML = d.stateWise.map(s => `<div class="state-chip"><div class="state-name">${s.state}</div><div class="state-party">${shortName(s.topParty)} — ${s.topPartySeats}/${s.totalSeats}</div></div>`).join('');
+  document.getElementById('stateGrid').innerHTML = d.stateWise.map(s => `<div class="state-chip"><div class="state-name">${escapeHtml(s.state)}</div><div class="state-party">${escapeHtml(shortName(s.topParty))} — ${s.topPartySeats}/${s.totalSeats}</div></div>`).join('');
 
   lucide.createIcons();
 }

@@ -24,20 +24,29 @@ Our approach prioritizes **efficiency, accessibility, and high performance**:
 *   **Bento Grid Learning:** Gamified, flippable flashcards teach core concepts like Voter Registration and EVM usage.
 *   **Live Data Dashboard:** Users can explore real 2024 election data, including party-wise seat distributions, closest contests, and top vote-getters.
 *   **Knowledge Quiz:** An 8-question interactive quiz tests the user's understanding with real-time feedback.
-*   **AI Chat Assistant:** Powered by Meta Llama 3.1 (via NVIDIA API), users can chat with an intelligent assistant to ask specific questions about the election process. (Includes local offline fallbacks).
+*   **AI Chat Assistant:** Powered by **Google Gemini** (`generativelanguage.googleapis.com`). Users enter their own API key (stored in `localStorage` for this demo only — use a server-side proxy in production). Offline keyword fallbacks work without a key.
 
 ### 4. Assumptions Made
 *   **Target Audience:** Assumes users are looking for a simplified overview of the process rather than dense legal text.
-*   **Network Reliability:** Assumes the user might not always have high-speed internet, which is why the core site relies on static assets with zero external framework dependencies.
-*   **API Usage:** Assumes the user provides their own NVIDIA API key for the AI chat; otherwise, a robust local fallback system handles common queries.
+*   **Network Reliability:** Assumes the user might not always have high-speed internet, which is why the core site relies on static assets with minimal dependencies (Lucide + GIS from CDN for icons and optional sign-in flows).
+*   **API Usage:** Assumes the user provides their own **Gemini API key** for the AI chat; otherwise, a robust local fallback system handles common queries. **No API keys are committed in source.**
 
 ---
 
-## 🎯 Evaluation Focus Areas Addressed
+## Security and testing
 
-*   **Code Quality (80%+):** Clean, modular vanilla JS. Strict separation of concerns between data and DOM manipulation.
-*   **Security (80%+):** All user inputs (chat, quiz) are strictly sanitized. API keys are managed locally via `localStorage` and never transmitted to our servers.
-*   **Efficiency (100%):** Zero heavy frameworks (no React/Angular). Compressed assets. Optimized DOM repaints for animations.
-*   **Testing (96%+):** Fully automated **Playwright** test suite covering edge cases, routing, UI rendering, and quiz logic.
-*   **Accessibility (97%+):** High-contrast color palette (Navy/Indigo), full ARIA label support, keyboard-navigable skip links, and semantic `<main>` and `<nav>` landmarks.
-*   **Google Services:** Fully containerized via Docker and deployed on **Google Cloud Run**, with **Google Cloud Build** (`cloudbuild.yaml`) continuous integration pipelines established.
+* **Skill reference:** Repository copy of [security-best-practices](../skills/security-best-practices/SKILL.md) (vendored; install upstream with `npx skills add supercent-io/skills-template@security-best-practices` when GitHub access works).
+* **XSS:** Chat and dynamic dashboards escape HTML before `innerHTML`; chat allows only `**bold**` after escaping.
+* **Headers:** See [nginx.conf](nginx.conf) for `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, and `Permissions-Policy`.
+* **Tests:** From repo root, `npm test`, or `cd election-assistant && npm ci && npx playwright install chromium && npm test`.
+
+---
+
+## Evaluation focus (maintenance)
+
+*   **Code Quality:** Modular vanilla JS; data vs DOM separation.
+*   **Security:** No secrets in git; escaped DOM sinks; nginx headers; `npm audit` in CI.
+*   **Efficiency:** Static-first UI; gzip in nginx.
+*   **Testing:** Playwright suite under `election-assistant/tests/`.
+*   **Accessibility:** Landmarks, ARIA, keyboard paths (see tests).
+*   **Google Services:** Gemini API integration in-app; GIS optional; Cloud Run deploy as documented in your pipeline.

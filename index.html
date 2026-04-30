@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive Election Process Assistant — Understand India's election process, timelines, and steps with an AI-powered guide.">
+  <title>Election Guide — Your Interactive Election Process Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar" aria-label="Primary">
+  <div class="container">
+    <a href="#hero" class="nav-logo">
+      <i data-lucide="landmark" style="width:24px;height:24px"></i>
+      Election Guide
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#learn">Learn</a></li>
+      <li><a href="#results2024">2024 Results</a></li>
+      <li><a href="#quiz">Quiz</a></li>
+    </ul>
+    
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-controls="navLinks" aria-expanded="false">
+      <i data-lucide="menu" style="width:24px;height:24px;color:var(--primary)"></i>
+    </button>
+  </div>
+</nav>
+
+<main id="main-content">
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i data-lucide="sparkles" style="width:16px;height:16px"></i>
+      AI-Powered Election Assistant
+    </div>
+    <h1>Understand the <span class="highlight">Election Process</span> with Ease</h1>
+    <p>Your interactive guide to India's democratic process — from nomination to results, with an AI assistant to answer all your questions.</p>
+    <a href="#timeline" class="hero-cta">
+      Start Your Journey
+      <i data-lucide="arrow-down" style="width:20px;height:20px"></i>
+    </a>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-number" id="statVoters">960M+</div>
+        <div class="stat-label">Eligible Voters</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">543</div>
+        <div class="stat-label">Lok Sabha Seats</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Election Phases</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FACTS TICKER -->
+<section class="facts-section" id="facts">
+  <div class="facts-track" id="factsTicker"></div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section timeline-section" id="timeline">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">
+        <i data-lucide="git-branch" style="width:14px;height:14px"></i>
+        Step by Step
+      </div>
+      <h2>The Election Journey</h2>
+      <p>Click on each phase to explore the detailed process from announcement to results.</p>
+    </div>
+    <div class="timeline" id="timelineContainer"></div>
+  </div>
+</section>
+
+<!-- BENTO GRID -->
+<section class="section bento-section" id="learn">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">
+        <i data-lucide="book-open" style="width:14px;height:14px"></i>
+        Learn More
+      </div>
+      <h2>Know Your Democracy</h2>
+      <p>Tap any card to flip and discover essential election knowledge.</p>
+    </div>
+    <div class="bento-grid" id="bentoGrid"></div>
+  </div>
+</section>
+
+<!-- 2024 RESULTS DASHBOARD -->
+<section class="section results-section" id="results2024">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">
+        <i data-lucide="bar-chart-3" style="width:14px;height:14px"></i>
+        Real Data · 2024 Lok Sabha
+      </div>
+      <h2>2024 Election Results</h2>
+      <p>Explore real results from India's 2024 General Elections — 8,360 candidates across 543 constituencies.</p>
+    </div>
+    <div class="results-stats" id="resultsStats"></div>
+    <div class="results-grid">
+      <div class="results-chart-card" id="partySeatsChart">
+        <h3>Party-wise Seats Won</h3>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+      <div class="results-chart-card" id="closestContestsCard">
+        <h3>Closest Contests</h3>
+        <div class="closest-list" id="closestList"></div>
+      </div>
+    </div>
+    <div class="results-grid" style="margin-top:24px">
+      <div class="results-chart-card" id="topCandidatesCard">
+        <h3>Top Vote Getters</h3>
+        <div class="top-candidates-list" id="topCandidatesList"></div>
+      </div>
+      <div class="results-chart-card" id="stateMapCard">
+        <h3>State-wise Dominance</h3>
+        <div class="state-grid" id="stateGrid"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="section quiz-section" id="quiz">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">
+        <i data-lucide="brain" style="width:14px;height:14px"></i>
+        Test Yourself
+      </div>
+      <h2>Election Knowledge Quiz</h2>
+      <p>How well do you know India's election process? Take this quick quiz to find out!</p>
+    </div>
+    <div class="quiz-container" id="quizContainer">
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+        <div class="quiz-progress-text" id="quizProgressText">1/8</div>
+      </div>
+      <div class="quiz-card" id="quizCard">
+        <div class="quiz-question" id="quizQuestion"></div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-explanation" id="quizExplanation"></div>
+        <button type="button" class="quiz-next-btn" id="quizNextBtn">Next Question <i data-lucide="arrow-right" style="width:16px;height:16px"></i></button>
+      </div>
+      <div class="quiz-results" id="quizResults">
+        <div class="quiz-score-circle">
+          <div class="quiz-score-num" id="quizScoreNum">0</div>
+          <div class="quiz-score-label">out of 8</div>
+        </div>
+        <h3 id="quizResultTitle">Great Job!</h3>
+        <p id="quizResultMsg">You have a solid understanding of the election process.</p>
+        <button type="button" class="quiz-retry-btn" id="quizRetryBtn">Try Again</button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- CHAT FAB -->
+<button type="button" class="chat-fab" id="chatFab" aria-label="Open AI Assistant" aria-expanded="false" aria-controls="chatPanel">
+  <i data-lucide="message-circle" style="width:26px;height:26px"></i>
+</button>
+
+<!-- CHAT PANEL -->
+<div class="chat-panel" id="chatPanel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="chatPanelTitle">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar"><i data-lucide="bot" style="width:18px;height:18px"></i></div>
+      <div class="chat-header-text">
+        <h4 id="chatPanelTitle">Election AI Assistant</h4>
+        <span>● Powered by Google Gemini</span>
+      </div>
+    </div>
+    <button type="button" class="chat-close" id="chatClose" aria-label="Close chat"><i data-lucide="x" style="width:20px;height:20px"></i></button>
+  </div>
+  <div class="chat-api-key" id="chatApiKeyArea">
+    <label class="visually-hidden" for="apiKeyInput">Gemini API key</label>
+    <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key..." autocomplete="off" />
+    <button type="button" id="apiKeySave">Save</button>
+  </div>
+  <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-relevant="additions">
+    <div class="chat-msg bot">Hi! 👋 I'm your Election Assistant. Ask me anything about India's election process, voter registration, or your voting rights!</div>
+  </div>
+  <div class="chat-input-area">
+    <label class="visually-hidden" for="chatInput">Message the assistant</label>
+    <input type="text" class="chat-input" id="chatInput" placeholder="Ask about elections..." autocomplete="off" />
+    <button type="button" class="chat-send" id="chatSend" aria-label="Send message"><i data-lucide="send" style="width:18px;height:18px"></i></button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#hero" class="nav-logo" style="color:#fff;">
+          <i data-lucide="landmark" style="width:24px;height:24px"></i>
+          Election Guide
+        </a>
+        <p>An interactive, AI-powered assistant helping citizens understand India's democratic election process with clarity and confidence.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#timeline">Election Timeline</a></li>
+          <li><a href="#learn">Learn More</a></li>
+          <li><a href="#quiz">Take the Quiz</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="https://eci.gov.in" target="_blank" rel="noopener">Election Commission</a></li>
+          <li><a href="https://nvsp.in" target="_blank" rel="noopener">Voter Registration</a></li>
+          <li><a href="https://voters.eci.gov.in" target="_blank" rel="noopener">Check Voter ID</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Made with civic responsibility · Not affiliated with ECI</span>
+      <span>Built for educational purposes</span>
+    </div>
+  </div>
+</footer>
+
+<script src="data.js?v=3"></script>
+<script src="election2024.js?v=3"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>

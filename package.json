@@ -1,0 +1,14 @@
+{
+  "name": "election-assistant",
+  "private": true,
+  "description": "Interactive election guide — static site with optional Google Sign-In and NVIDIA chat",
+  "scripts": {
+    "start": "npx --yes serve -l 3785 .",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1"
+  }
+}
